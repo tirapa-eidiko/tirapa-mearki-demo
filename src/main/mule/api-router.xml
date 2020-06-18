@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:covid-19data-tracking-api="http://www.mulesoft.org/schema/mule/covid-19data-tracking-api" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/covid-19data-tracking-api http://www.mulesoft.org/schema/mule/covid-19data-tracking-api/current/mule-covid-19data-tracking-api.xsd">
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="8d1baf3e-aa09-45ed-82b9-f4d5a2a0fdbe" name="Router" api="api\meraki.raml" />
+	<flow name="api-routerFlow" doc:id="5091d5d7-2efc-4de8-9aad-f154d913b101" >
+		<http:listener doc:name="Listener" doc:id="7966de18-643d-404b-afd4-ab3574cf58a7" config-ref="HTTP_Listener_config" path="*"/>
+		<apikit:console doc:name="APIkit Console" doc:id="2b5c5783-5d86-4f51-ad6f-81975875540f" config-ref="Router"/>
+	</flow>
+	<flow name="api-routerFlow1" doc:id="079aef2b-9652-4c14-ba32-d6f4af5520e8" >
+		<http:listener doc:name="Listener" doc:id="bbb803d5-692e-464a-ad5e-7b4d3d94ba97" config-ref="HTTP_Listener_config" path="*"/>
+		<apikit:router doc:name="APIkit Router" doc:id="5097d589-6ac1-47fd-8963-3b948ee89be4" config-ref="Router"/>
+	</flow>
+</mule>

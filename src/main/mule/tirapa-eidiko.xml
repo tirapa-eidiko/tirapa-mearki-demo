@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="55d978cd-1640-4d3d-a2b9-9977f66cd34a" basePath="base">
+		<http:listener-connection host="0.0.0.0" port="8088" />
+	</http:listener-config>
+	<db:config name="SQLite_DataBase" doc:name="Database Config" doc:id="8d242598-4450-408c-8ff6-78c17035e9e1" >
+		<db:generic-connection url="jdbc:sqlite:C:\Users\Administrator\AppData\Roaming\DBeaverData\workspace6\.metadata\sample-database-sqlite-1\Chinook.db" driverClassName="org.sqlite.JDBC" />
+	</db:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d53a6a22-390f-45ac-b53d-77728031f5c7" basePath="/base/meraki" >
+		<http:request-connection host="09cec7fdc187.ngrok.io" port="443" protocol="HTTPS"/>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="f94d0f7f-dde5-4d6a-9e69-174631671dfd" basePath="/v1" >
+		<http:request-connection protocol="HTTPS" host="webexapis.com" port="443" />
+	</http:request-config>
+	<flow name="tirapa-eidikoFlow" doc:id="4ee5b621-9c3a-4360-9210-1023e358cc5b" >
+		<http:listener doc:name="Listener" doc:id="8a468c7f-f16f-4ed9-a2c3-9671723e6acd" config-ref="HTTP_Listener_config" path="/meraki/*"/>
+		<choice doc:name="Choice" doc:id="662ac5cb-04c3-4006-be27-b83758527348" >
+			<when expression="#[attributes.listenerPath=='/meraki']">
+				<logger level="INFO" doc:name="Logger" doc:id="f5de76fe-2885-489b-a5de-6d04239c1d1c" message="#[payload.message]" />
+			</when>
+			<when expression="#[attributes.listenerPath=='/meraki1']">
+				<logger level="WARN" doc:name="Logger" doc:id="0a61dbcf-a257-4c15-9785-ea77d20d74b8" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="6fcbcbfe-f974-4917-b625-91c1044d7733" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Input Album Data" doc:id="6fd56dd8-b613-4679-b39b-1b661c62fb3d" message="#[payload]"/>
+		<try doc:name="Try" doc:id="7b07a662-8908-4094-86e8-66444cb5d4cc" >
+			<db:insert doc:name="Load Album" doc:id="318bc70f-f48d-4cf5-ba98-a8638849427e" config-ref="SQLite_DataBase">
+			<db:sql><![CDATA[INSERT INTO Album(AlbumId, Title, ArtistId) VALUES(:AlbumId,:Title,:ArtistId);]]></db:sql>
+			<db:parameter-types>
+				<db:parameter-type key="AlbumId" type="BIGINT" />
+				<db:parameter-type key="Title" type="VARCHAR" />
+				<db:parameter-type key="ArtistId" type="BIGINT" />
+			</db:parameter-types>
+			<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9c6d1305-6a48-400d-bd18-2b2888a3a314" >
+					<logger level="INFO" doc:name="Logger" doc:id="6316d19e-15d8-4deb-a154-f1b6f060baa4" message="#[payload]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<db:select doc:name="Retrieve Album" doc:id="fc1bd7f0-4a6f-4443-95b7-2eb269249d50" config-ref="SQLite_DataBase">
+			<db:sql ><![CDATA[SELECT AlbumId,ArtistId,Title FROM Album;]]></db:sql>
+		</db:select>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+payload]" doc:name="Set Album Data" doc:id="01975390-54da-48ae-a922-b3680b3c3aa1" />
+	</flow>
+	<flow name="tirapa-eidikoFlow1" doc:id="6142558b-e955-476f-b61a-f086a794bf30" >
+		<http:listener doc:name="Listener" doc:id="0f6098bc-e017-43bb-811d-f62f18cf22d1" config-ref="HTTP_Listener_config" path="/meraki3"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9ebd3dab-1f9f-4ed0-bdd2-f35bb8af6e0d" message="#['IN FLOW TWO']"/>
+		<http:request method="POST" doc:name="Request" doc:id="31b171d4-2d86-46f7-9b8d-c0228461fd2e" config-ref="HTTP_Request_configuration" path="/123"/>
+	</flow>
+	<flow name="tirapa-eidiko-spark" doc:id="041a79ca-4ebe-4878-8182-33a6c42ec948" >
+		<http:listener doc:name="Listener" doc:id="8066b0a7-f5e8-4b08-9163-b5ffeba683b7" config-ref="HTTP_Listener_config" path="/spark"/>
+		<logger level="INFO" doc:name="Logger" doc:id="44197582-6b04-44a2-958c-82604dae0365" message="#['IN FLOW TWO']"/>
+		<http:request method="POST" doc:name="Request" doc:id="399b1bb9-da79-47c8-8b28-61047ecd66db" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw"
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+	<flow name="tirapa-eidiko-validate" doc:id="da37257f-04e9-40ca-b3eb-e1d80a4e5deb" >
+		<http:listener doc:name="Meraki Validator" doc:id="e68e657d-c493-4072-8aac-40b5c99a8a14" config-ref="HTTP_Listener_config" path="/validate"/>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="83cdfb54-a8ae-41c4-a381-842883311144" message="#['OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO']"/>
+		<logger level="INFO" doc:name="Logger" doc:id="34e8a077-8513-4d24-8c8c-5871f1475a52" message="#[payload]"/>
+		
+		<try doc:name="Try" doc:id="ac78a4af-4a3e-4eaa-bf8a-81d11ac04b34" >
+			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="8113fcd0-9bc8-44c2-818d-c09753693ea9" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw",
+	"markdown": "**A Request has been receive from Meraki Scanning API & Sending**  \n <br /> Validation Code :: c732893714d461e61b69a4277fe554460f84cdf6" 
+}]]]></http:body>
+					<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw"
+}]]]></http:query-params>
+		
+</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a1865ea8-c796-4595-88be-788de45218d8" >
+					<logger level="INFO" doc:name="Logger" doc:id="08b6917b-7516-49cb-bc33-3019596b8ac2" message="#[message]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<set-payload value="#['c732893714d461e61b69a4277fe554460f84cdf6']" doc:name="Set Validator Response" doc:id="8e7bebb1-4e22-4e53-b89b-c6aae92192c8" />
+	
+</flow>
+
+	<flow name="tirapa-eidiko-getClientDetails" doc:id="1ffb7a5c-9c82-4c53-830c-a4307baa4189" >
+		<http:listener doc:name="Meraki Get Client" doc:id="8b344a26-8be1-4950-8855-4bbf46e99319" config-ref="HTTP_Listener_config" path="/getClient/*"/>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="95838715-c197-4c6d-9886-dbca87713e52" message="#[attributes.maskedRequestPath replace  '/' with('')]" />
+		<db:select doc:name="Select" doc:id="89411ce8-a642-41ca-9f63-22157361db42" config-ref="SQLite_DataBase">
+			<db:sql ><![CDATA[SELECT * FROM CLIENT_DETAILS WHERE MACID  like :macID ]]></db:sql>
+			<db:parameter-types >
+				<db:parameter-type key="macID" type="NVARCHAR" />
+			</db:parameter-types>
+			<db:input-parameters ><![CDATA[#['macID': attributes.maskedRequestPath replace  '/' with('')]]]></db:input-parameters>
+		</db:select>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+payload[0]]" doc:name="Set Validator Response" doc:id="f3f2f01f-39c9-4d16-acee-c6eb24514aad" />
+	
+	<set-variable value="#[payload]" doc:name="Set Variable" doc:id="9aa8c9f7-2a89-4d82-9f94-2dae0477b228" variableName="payloadOver"/>
+		<try doc:name="Try" doc:id="03b6e77d-9358-475d-8512-324b70f4c0f9" >
+			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="51db7103-d531-48db-8d2f-6ff0da8470ed" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw",
+	"markdown": "**The below are the Details of the requested user \n <br /> First Name: Tirapa Reddy \n <br /> LastName : Tondapu \n <br /> Email : tirapareddy.tondapu@eidiko.com**" 
+}]]]></http:body>
+					<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw"
+}]]]></http:query-params>
+		
+</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5836ecdb-bbde-405d-b886-03d0a9479cc5" >
+					<logger level="INFO" doc:name="Logger" doc:id="447f2a95-93d9-4bbd-a24e-7ba015282319" message="#[message]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+vars.payloadOver]" doc:name="Set Payload" doc:id="61e7dd93-b754-48b6-8e20-e1a2ebb78664" />
+
+</flow>
+
+<flow name="tirapa-eidiko-network" doc:id="f349fbc6-e4be-404d-a329-af99af9520a5" >
+		<http:listener doc:name="Meraki Get Network Details" doc:id="69107e56-608c-4cea-8ba9-2f4ebc2593ea" config-ref="HTTP_Listener_config" path="/network"/>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="f6ff9a88-4741-440b-9135-284d059ae7de" message="#[payload]" />
+		<db:select doc:name="Query Observations" doc:id="845d4513-973b-4eaa-9792-6f27aa11abac" config-ref="SQLite_DataBase">
+			<db:sql ><![CDATA[SELECT COUNT(clientMac ) AS TOTAL_PERSONS,  COUNT( DISTINCT clientMac ) AS TOTAL_DISTINCT_PERSONS FROM OBSERVATIONS ]]></db:sql>
+			<db:parameter-types >
+			</db:parameter-types>
+			<db:input-parameters ><![CDATA[#[{'input':'123'}]]]></db:input-parameters>
+		
+</db:select>
+		<logger level="INFO" doc:name="Echo Queried Observations" doc:id="ecc5d6ca-9512-4637-9004-8443b414b554" message="#[payload]"/>
+		<set-variable value="#[payload[0].TOTAL_PERSONS]" doc:name="Set Variable" doc:id="b81922b7-bbf1-49f8-a5a5-55f880f259c3" variableName="tatalPersons"/>
+		<set-variable value="#[payload[0].TOTAL_DISTINCT_PERSONS]" doc:name="Set Variable" doc:id="802a14e0-3af4-4a50-97cb-c07f180fd0b7" variableName="distinctPersons"/>
+		<try doc:name="Try" doc:id="78a14e95-0fff-4b92-bbd0-feda7163736d" >
+			<http:request method="POST" doc:name="Post WebEx Message" doc:id="8bdfb40c-ae7d-4bd9-b18f-d6e0fd6f63a0" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw",
+	"markdown": "**The below are the details for requested netword** \n <br /> Network Name : DSO \n <br /> Network ID : L_00000000000000001 \n <br /> Total Persons in DSO : " ++ payload[0].TOTAL_PERSONS
+}]]]></http:body>
+					<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw"
+}]]]></http:query-params>
+		
+</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f9ec3c06-4841-4dcf-bf5e-782919934b70" >
+					<logger level="INFO" doc:name="Logger" doc:id="de3d5dc0-7d9c-4289-91d1-12712d7368c3" message="#[message]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	"Total Person in Network": vars.tatalPersons,
+	"Distinct Persons":vars.distinctPersons
+	
+}]' doc:name="Set Response" doc:id="fce8c813-e446-44a2-ae08-c5451e7b6c0e" />
+	
+
+
+</flow>
+	
+	<flow name="tirapa-eidiko-receive" doc:id="48fe0af8-9339-4990-a97c-b5024d523370" >
+		<http:listener doc:name="Listener" doc:id="b07e1b81-9c9e-4e09-af11-c1fcdac24c5e" config-ref="HTTP_Listener_config" path="/receive"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7ac98487-2214-4517-8aa6-ebb648053203" message="#[payload]"/>
+		<set-variable value="#[payload.data.networkId]" doc:name="Set NetworkId" doc:id="9d49c2d3-c67c-4c4d-ac79-f8c800865307" variableName="networkId"/>
+		<set-variable value="#[payload.version]" doc:name="Set Version" doc:id="7f1f93b2-1e8d-44dc-82fe-b1b9d8bf8fd4" variableName="version"/>
+		<set-variable value="#[payload.typ]" doc:name="Set Type" doc:id="574d320c-5011-449f-a7b7-089dc39f007f" variableName="deviceType"/>
+		<foreach doc:name="For Each" doc:id="0db5afd6-0823-4b82-a0ec-f94d7ed43ff7" collection="#[payload.data.observations]">
+			<set-variable value="#[payload.clientMac]" doc:name="Set Variable" doc:id="7bb7a7a2-a8de-4acc-8cf7-75c4d92df67b" variableName="clientMac" />
+			<set-variable value="#[payload]" doc:name="Set Payload as Veriable" doc:id="79fd40ee-147a-41f5-baf6-5dde1526553d" variableName="valPayload"/>
+			<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+                "locations": payload.locations,
+                "ipv4": payload.ipv4,
+                "ssid": payload.ssid,
+                "os": payload.os,
+                "clientMac": payload.clientMac,
+                "latestRecord": payload.latestRecord,
+                "ipv6": payload.ipv6,
+                "manufacturer": payload.manufacturer,
+                "NETWORK_ID":vars.networkId,
+                "Version":vars.version,
+                "TYPE":vars.deviceType        
+       }]' doc:name="Insert Data" doc:id="c87d4db3-438d-41a6-ae7f-73e2646c6d06" />
+			<try doc:name="Try" doc:id="dae6f1d7-0994-4684-af61-a6c653287395" >
+				<db:insert doc:name="Load Observations" doc:id="36083baf-86ac-40fc-b6f6-09c1c151fbc0" config-ref="SQLite_DataBase">
+			<db:sql><![CDATA[INSERT INTO OBSERVATIONS(locations, ipv4, ssid, os, clientMac, latestRecord, ipv6, manufacturer, NETWORK_ID, Version, "TYPE") VALUES(:locations, :ipv4, :ssid, :os, :clientMac, :latestRecord, :ipv6, :manufacturer, :NETWORK_ID, :Version, :TYPE);]]></db:sql>
+			<db:parameter-types>
+				<db:parameter-type key="locations" type="VARCHAR" />
+				<db:parameter-type key="ipv4" type="VARCHAR" />
+				<db:parameter-type key="ssid" type="VARCHAR" />
+				<db:parameter-type key="os" type="VARCHAR" />
+				<db:parameter-type key="clientMac" type="VARCHAR" />
+				<db:parameter-type key="latestRecord" type="VARCHAR" />
+				<db:parameter-type key="ipv6" type="VARCHAR" />
+				<db:parameter-type key="manufacturer" type="VARCHAR" />
+				<db:parameter-type key="NETWORK_ID" type="VARCHAR" />
+				<db:parameter-type key="Version" type="VARCHAR" />
+				<db:parameter-type key="TYPE" type="VARCHAR" />
+			</db:parameter-types>
+			<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+		<http:request method="POST" doc:name="Request" doc:id="f06fe7bc-2e33-4735-9f6c-85310423a573" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw",
+	"markdown": "**A new [Person or Client](https://4263c2b2a7c7.ngrok.io/base/getClient/cc:cc:cc:ac:78:b0) Entered DSO Network with a MAC ID :: **"++ vars.clientMac++'Click [Network Details](https://4263c2b2a7c7.ngrok.io/base/network) for complete network details'
+}]]]></http:body>
+					<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw"
+}]]]></http:query-params>
+		
+</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d215423b-7b71-4f19-b8c5-b72b10a2a329" >
+						<logger level="INFO" doc:name="Logger" doc:id="a643f9f6-2afe-4a42-8702-50c6361fab87" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+			<try doc:name="Try" doc:id="62713b6e-3060-435d-b78a-858b98b0846d">
+				<foreach doc:name="For Each" doc:id="c2c1d7ce-83e4-48c6-a02b-726727570207" collection="#[vars.valPayload.locations]">
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	"clientMac":payload.clientMac,
+	"X":payload.x,
+	"Y":payload.y,
+	"LNG":payload.lng,
+	"LAT":payload.lat,
+	"FloorPlanName":payload.floorPlanName,
+	"FloorPlanId":payload.floorPlanId,
+	"rssiRecords":payload.rssiRecords,
+	"Time":payload.Time,
+	"variance":payload.variance,
+	"nearestApTags":payload.nearestApTags,
+	}]' doc:name="Insert Location Data" doc:id="d0cde429-01bb-47a8-b8c4-6b809046553d" />
+				<db:insert doc:name="Load Locations" doc:id="8ab6c41d-4293-4033-82b1-df5083bd7113" config-ref="SQLite_DataBase">
+			<db:sql><![CDATA[INSERT INTO LOCATIONS(clientMac, X, Y, LNG, LAT, FloorPlanName, FloorPlanId, rssiRecords, Time, variance, nearestApTags) VALUES(:clientMac, :X, :Y, :LNG, :LAT, :FloorPlanName, :FloorPlanId, :rssiRecords, :Time, :variance, :nearestApTags);]]></db:sql>
+			<db:parameter-types>
+				<db:parameter-type key="clientMac" type="VARCHAR" />
+				<db:parameter-type key="X" type="VARCHAR" />
+				<db:parameter-type key="Y" type="VARCHAR" />
+				<db:parameter-type key="LNG" type="VARCHAR" />
+				<db:parameter-type key="LAT" type="VARCHAR" />
+				<db:parameter-type key="FloorPlanName" type="VARCHAR" />
+				<db:parameter-type key="FloorPlanId" type="VARCHAR" />
+				<db:parameter-type key="rssiRecords" type="VARCHAR" />
+				<db:parameter-type key="Time" type="VARCHAR" />
+				<db:parameter-type key="variance" type="VARCHAR" />
+				<db:parameter-type key="nearestApTags" type="VARCHAR" />
+			</db:parameter-types>
+			<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+			</foreach>
+				<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="16bc3148-3b6a-45f5-b0f1-31b78b372908" >
+						<logger level="INFO" doc:name="Logger" doc:id="8c274371-091e-4267-948f-95037a6a6e1a" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</foreach>
+		
+	
+</flow>
+</mule>
