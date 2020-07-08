@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="55d978cd-1640-4d3d-a2b9-9977f66cd34a" basePath="base">
 		<http:listener-connection host="0.0.0.0" port="8088" />
 	</http:listener-config>
@@ -14,14 +15,26 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d53a6a22-390f-45ac-b53d-77728031f5c7" basePath="/base/meraki" >
 		<http:request-connection host="09cec7fdc187.ngrok.io" port="443" protocol="HTTPS"/>
 	</http:request-config>
-	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="f94d0f7f-dde5-4d6a-9e69-174631671dfd" basePath="/v1" >
+	<http:request-config name="HTTP_Reques_WebEx" doc:name="HTTP Request configuration" doc:id="f94d0f7f-dde5-4d6a-9e69-174631671dfd" basePath="/v1" >
 		<http:request-connection protocol="HTTPS" host="webexapis.com" port="443" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="59c026e3-965f-43c5-96be-feae48e196d0" basePath="/verify" >
+		<http:request-connection protocol="HTTPS" host="api.nexmo.com" port="443" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_QWASI" doc:name="HTTP Request configuration" doc:id="f4116855-136f-4c28-b582-f4c0d350d34a" basePath="/api/v1" >
+		<http:request-connection protocol="HTTPS" host="stage.apiconsole.qwasi.com" port="443" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_VONAGE" doc:name="HTTP Request configuration" doc:id="ebef12f1-767f-4992-8a41-b56f0f07a9d3" >
+		<http:request-connection host="rest.nexmo.com" port="443" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_WhatsApp" doc:name="HTTP Request configuration" doc:id="7ff9bb88-4af0-43f7-b4d7-dfb028ce7659" basePath="/v0.1" >
+		<http:request-connection host="messages-sandbox.nexmo.com" port="443" protocol="HTTPS"/>
 	</http:request-config>
 	<flow name="tirapa-eidikoFlow" doc:id="4ee5b621-9c3a-4360-9210-1023e358cc5b" >
 		<http:listener doc:name="Listener" doc:id="8a468c7f-f16f-4ed9-a2c3-9671723e6acd" config-ref="HTTP_Listener_config" path="/meraki/*"/>
 		<choice doc:name="Choice" doc:id="662ac5cb-04c3-4006-be27-b83758527348" >
 			<when expression="#[attributes.listenerPath=='/meraki']">
-				<logger level="INFO" doc:name="Logger" doc:id="f5de76fe-2885-489b-a5de-6d04239c1d1c" message="#[payload.message]" />
+				<logger level="INFO" doc:name="Logger " doc:id="f5de76fe-2885-489b-a5de-6d04239c1d1c" message="#[payload.message]" />
 			</when>
 			<when expression="#[attributes.listenerPath=='/meraki1']">
 				<logger level="WARN" doc:name="Logger" doc:id="0a61dbcf-a257-4c15-9785-ea77d20d74b8" />
@@ -63,11 +76,11 @@ payload]" doc:name="Set Album Data" doc:id="01975390-54da-48ae-a922-b3680b3c3aa1
 	<flow name="tirapa-eidiko-spark" doc:id="041a79ca-4ebe-4878-8182-33a6c42ec948" >
 		<http:listener doc:name="Listener" doc:id="8066b0a7-f5e8-4b08-9163-b5ffeba683b7" config-ref="HTTP_Listener_config" path="/spark"/>
 		<logger level="INFO" doc:name="Logger" doc:id="44197582-6b04-44a2-958c-82604dae0365" message="#['IN FLOW TWO']"/>
-		<http:request method="POST" doc:name="Request" doc:id="399b1bb9-da79-47c8-8b28-61047ecd66db" config-ref="HTTP_Request_configuration1" path="/messages">
+		<http:request method="POST" doc:name="Request" doc:id="399b1bb9-da79-47c8-8b28-61047ecd66db" config-ref="HTTP_Reques_WebEx" path="/messages">
 			<http:headers ><![CDATA[#[output application/java
 ---
 {
-	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Authorization" : "Bearer OTIzNGYzOGItY2NkZS00YmZlLThkZmUtMjI0NDMwMGFkMmFjMDczYzIyNzItM2E3_PF84_consumer",
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 			<http:query-params ><![CDATA[#[output application/java
@@ -80,10 +93,10 @@ payload]" doc:name="Set Album Data" doc:id="01975390-54da-48ae-a922-b3680b3c3aa1
 	<flow name="tirapa-eidiko-validate" doc:id="da37257f-04e9-40ca-b3eb-e1d80a4e5deb" >
 		<http:listener doc:name="Meraki Validator" doc:id="e68e657d-c493-4072-8aac-40b5c99a8a14" config-ref="HTTP_Listener_config" path="/validate"/>
 		<logger level="INFO" doc:name="Echo Input Data" doc:id="83cdfb54-a8ae-41c4-a381-842883311144" message="#['OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO']"/>
-		<logger level="INFO" doc:name="Logger" doc:id="34e8a077-8513-4d24-8c8c-5871f1475a52" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger GG" doc:id="34e8a077-8513-4d24-8c8c-5871f1475a52" message="#[payload]"/>
 		
 		<try doc:name="Try" doc:id="ac78a4af-4a3e-4eaa-bf8a-81d11ac04b34" >
-			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="8113fcd0-9bc8-44c2-818d-c09753693ea9" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="8113fcd0-9bc8-44c2-818d-c09753693ea9" config-ref="HTTP_Reques_WebEx" path="/messages">
 			<http:body><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -94,7 +107,7 @@ output application/json
 					<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Authorization" : "Bearer OTIzNGYzOGItY2NkZS00YmZlLThkZmUtMjI0NDMwMGFkMmFjMDczYzIyNzItM2E3_PF84_consumer",
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 					<http:query-params><![CDATA[#[output application/java
@@ -110,7 +123,277 @@ output application/json
 				</on-error-continue>
 			</error-handler>
 		</try>
-		<set-payload value="#['c732893714d461e61b69a4277fe554460f84cdf6']" doc:name="Set Validator Response" doc:id="8e7bebb1-4e22-4e53-b89b-c6aae92192c8" />
+		<set-payload value="#['c8b77133f4bd2218df387186212a6e946d5b4207']" doc:name="Set Validator Response" doc:id="8e7bebb1-4e22-4e53-b89b-c6aae92192c8" />
+	
+</flow>
+<flow name="tirapa-eidiko-sendOTP" doc:id="1255a06a-4405-4dd5-9078-23e50e48a390" >
+		<http:listener doc:name="Meraki Validator" doc:id="4fe8e38d-d81e-4e85-b03c-2513e9a2a21e" config-ref="HTTP_Listener_config" path="/sendOTP">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="0e46bf96-2772-4997-a18f-637f4456829f" message="#['IN SEND OTP'++ message.attributes.queryString]"/>
+		<set-variable value="#[%dw 2.0
+output application/java
+---
+{
+	'name':message.attributes.queryParams.name,
+	'firstName':message.attributes.queryParams.firstName,
+	'lastName':message.attributes.queryParams.lastName,
+	'clinetIP':message.attributes.queryParams.clinetIP,
+	'clientMAC':message.attributes.queryParams.clientMAC,
+	'nodeMAC':message.attributes.queryParams.nodeMAC,
+	'apMAC':message.attributes.queryParams.apMAC,
+	'apIP':message.attributes.queryParams.apIP,
+	'baseGrantURL':message.attributes.queryParams.baseGrantURL,
+	'userContURL':message.attributes.queryParams.userContURL,
+	'email':message.attributes.queryParams.email,
+	'number':message.attributes.queryParams.number,
+	'company':message.attributes.queryParams.company,
+	'browser':message.attributes.queryParams.browser,
+	'platform':message.attributes.queryParams.platform,
+	'userAgent':message.attributes.queryParams.userAgent
+}]" doc:name="Set Paayload" doc:id="3d6fca9a-61f3-4587-890b-6ce16a5482a2" variableName="sqlPayload"/>
+		<try doc:name="Try" doc:id="a13a6586-e0f4-4d4b-b442-69e22b05c61c">
+			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="2b69b5f0-3088-4f1f-9535-9b479c00f1b3" config-ref="HTTP_Reques_WebEx" path="/messages">
+			<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vMTkwNWU4NTAtYmRkNi0xMWVhLWFjOWItYmZhMDQ1ZGNjYzRj",
+	"markdown": "Welcome **" ++ message.attributes.queryParams.name ++"**, \n <br /> Your Mobile Number **" ++ message.attributes.queryParams.number ++"** and  email **" ++ message.attributes.queryParams.email ++ "** has been registered with QWASI. \n <br /> Please [click here ](https://46d42d23cbc6.ngrok.io/examples/success.html) to upload your documents \n <br /> Thank you..!! \n <br /> **QWASI Team**" 
+}]]]></http:body>
+					<http:headers><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer ZWZhYTEzZTItNzgzZS00ZmQ4LWExYWEtMjgwN2M5NjgwN2Q5NDNjZTFkZTItMzQ5_PF84_consumer",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"roomId" : "Y2lzY29zcGFyazovL3VzL1JPT00vMTkwNWU4NTAtYmRkNi0xMWVhLWFjOWItYmZhMDQ1ZGNjYzRj"
+}]]]></http:query-params>
+		
+</http:request>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="92b8c4e7-70df-484a-ae73-e58840fddce9">
+					<logger level="INFO" doc:name="Logger" doc:id="b3889bbf-53c3-49bd-8e25-13183790a6aa" message="#[message]" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		
+		<logger level="INFO" doc:name="Logger" doc:id="fb81ede7-3984-41e6-91f3-dce21c74b553" message="#[payload]"/>
+		<try doc:name="Try" doc:id="45b32ee1-e901-4364-b6ad-ea9878e05110">
+			<http:request method="POST" doc:name="Post Data To QWASI" doc:id="de377a33-a92b-4282-be8c-27f169e3d88c" config-ref="HTTP_Request_QWASI" path="/interaction">
+				<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	 
+  "tag":vars.sqlPayload.clientMAC,
+    "firstname":vars.sqlPayload.name,
+    "lastname": vars.sqlPayload.name,
+    "email": vars.sqlPayload.email,
+    "phone": vars.sqlPayload.number,
+    "ipAddress": vars.sqlPayload.clinetIP,
+    "browser": vars.sqlPayload.browser,
+    "platform": vars.sqlPayload.platform,
+    "userAgent": vars.sqlPayload.userAgent,
+    "deviceid": vars.sqlPayload.apIP,
+    "mac": vars.sqlPayload.apMAC
+}]]]></http:body>
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "7c248f0aa47c2e348404d186698596b7",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			</http:request>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7a2b31e8-2cd3-420d-a8e8-e9d6ac0c91f9">
+					<logger level="INFO" doc:name="Logger" doc:id="4980e903-8f0b-449a-8385-db0d5dbe713d" message="#[message]" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="405f2407-1886-488c-94f2-f18ea3172070" message="#[payload]"/>
+		<try doc:name="Try" doc:id="45b32ee1-e901-4364-b6ad-ea9878e05110">
+			<http:request method="POST" doc:name="Send SMS" doc:id="de377a33-a92b-4282-be8c-27f169e3d88c" config-ref="HTTP_Request_VONAGE" path="/sms/json" outputMimeType="application/x-www-form-urlencoded">
+				<http:body ><![CDATA[#[%dw 2.0
+
+output application/x-www-form-urlencoded
+
+---
+
+{
+
+    api_key:"DVsK5neDxFp7BcES",
+    api_secret:"34c109d8",
+    from: "EidikoQwasi",
+    text: "vars.sqlPayload.name",
+    to: "971504643341"
+
+}]]]></http:body>
+				<http:headers ><![CDATA[#[output application/x-www-form-urlencoded
+---
+{
+	"from" : "QwasiEidiko",
+	"text" : "Hi Hello",
+	"to" : "971504643341",
+	"api_key" : "DVsK5neDxFp7BcES",
+	"Content-Type" : "application/x-www-form-urlencoded",
+	"api_secret" : "34c109d8"
+}]]]></http:headers>
+			</http:request>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7a2b31e8-2cd3-420d-a8e8-e9d6ac0c91f9">
+					<logger level="INFO" doc:name="Logger" doc:id="4980e903-8f0b-449a-8385-db0d5dbe713d" message="#[message]" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="405f2407-1886-488c-94f2-f18ea3172070" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d2ffd909-09d7-43f5-82cc-2438c9cfe5ae" message='#[{
+    "from": { "type": "whatsapp", "number": "14157386170" },
+    "to": { "type": "whatsapp", "number":  vars.sqlPayload.number },
+    "message": {
+      "content": {
+        "type": "text",
+        "text": "Welcome *" ++ vars.sqlPayload.name ++"*, \n Your Mobile Number *" ++ vars.sqlPayload.number ++"* and  email *" ++ vars.sqlPayload.email ++ "* has been registered with QWASI. \n  Please click https://537d50492642.ngrok.io/examples/success.html to upload your documents \n Thank you..!! \n  *QWASI Team*"
+      }
+    }
+  }]'/>
+		<try doc:name="Try" doc:id="ee3cb5cc-7b96-4dd8-a428-c4311aa982e4">
+			<http:request method="POST" doc:name="WhatApp Notification" doc:id="f9b046c5-b9f3-4a09-bab7-6589312ab76b" config-ref="HTTP_Request_WhatsApp" path="/messages">
+				<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+    "from": { "type": "whatsapp", "number": "14157386170" },
+    "to": { "type": "whatsapp", "number": trim(vars.sqlPayload.number)  },
+    "message": {
+      "content": {
+        "type": "text",
+        "text": "Welcome *" ++ vars.sqlPayload.name ++"*, \n Your Mobile Number *" ++ vars.sqlPayload.number ++"* and  email *" ++ vars.sqlPayload.email ++ "* has been registered with QWASI. \n  Please click https://537d50492642.ngrok.io/examples/success.html to upload your documents \n Thank you..!! \n  *QWASI Team*"
+      }
+    }
+  }]]]></http:body>
+				<http:headers ><![CDATA[#[output application/json
+---
+{
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+			</http:request>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="dfc320ca-c089-4244-ba1b-8f2a58c43e0a">
+					<logger level="INFO" doc:name="Logger" doc:id="d77abe80-9aeb-4171-ba39-9758490a1b5e" message="#[message]" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="f86e0e6c-6d9c-4301-9198-f3889399e441" message="#[payload]"/>
+		
+		<try doc:name="Try" doc:id="7d608d1a-d8b0-49e0-b9a1-f4d9e0206c74" >
+			<db:insert doc:name="Load Client Logins" doc:id="297f6b0a-a371-4bdc-8418-2ecd2a86054d" config-ref="SQLite_DataBase">
+			<db:sql><![CDATA[INSERT INTO CLIENT_LOGINS
+( DISPLAY_NAME, FIRST_NAME, LAST_NAME, CLIENT_IP, CLIENT_MAC, NODE_MAC, AP_MAC, AP_IP, BASE_GRANT_URL, USER_CONTINUE_URL, "NUMBER", EMAIL, COMPANY, BROWSER, PLATFORM, USER_AGENT, LOGIN_TIME_STAMP)
+VALUES(:name, :firstName, :lastName, :clinetIP, :clientMAC, :nodeMAC, :apMAC, :apIP, :baseGrantURL, :userContURL, :number, :email, :company,:browser, :platform, :userAgent, CURRENT_TIMESTAMP);]]></db:sql>
+			<db:parameter-types>
+				<db:parameter-type key="name" type="VARCHAR" />
+				<db:parameter-type key="firstName" type="VARCHAR" />
+				<db:parameter-type key="lastName" type="VARCHAR" />
+				<db:parameter-type key="clinetIP" type="VARCHAR" />
+				<db:parameter-type key="clientMAC" type="VARCHAR" />
+				<db:parameter-type key="nodeMAC" type="VARCHAR" />
+				<db:parameter-type key="apMAC" type="VARCHAR" />
+				<db:parameter-type key="apIP" type="VARCHAR" />
+				<db:parameter-type key="baseGrantURL" type="VARCHAR" />
+				<db:parameter-type key="userContURL" type="VARCHAR" />
+				<db:parameter-type key="email" type="VARCHAR" />
+				<db:parameter-type key="company" type="VARCHAR" />
+				<db:parameter-type key="browser" type="VARCHAR" />
+				<db:parameter-type key="platform" type="VARCHAR" />
+				<db:parameter-type key="userAgent" type="VARCHAR" />
+				<db:parameter-type key="number" type="VARCHAR" />
+			</db:parameter-types>
+				<db:input-parameters ><![CDATA[#[vars.sqlPayload]]]></db:input-parameters>
+		</db:insert>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b4ffbba7-f544-4417-a258-ba3285545f6c" >
+					<logger level="INFO" doc:name="Logger" doc:id="6c7100d2-7899-4eb1-b0ff-76b6f193a655" message="#[payload]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="1fa6630f-ae2b-40a8-bb98-a44795480ff7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+</flow>
+
+<flow name="tirapa-eidiko-verifyOTP" doc:id="08d97f81-834b-4759-8aca-e53fad0c1849" >
+		<http:listener doc:name="Meraki Validator" doc:id="72ce60fa-c56b-4e27-a7db-a3d0df7a0702" config-ref="HTTP_Listener_config" path="/verifyOTP"/>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="f8d14b12-83fd-47a8-a32d-4b20c9250db3" message="#[attributes]"/>
+		<logger level="INFO" doc:name="Logger GG" doc:id="e3f5ce8e-f869-4c23-9a34-94dd641c86f9" message="#[attributes]"/>
+		
+		<try doc:name="Try" doc:id="c84b179c-2323-4fec-a36a-782e9b624305" >
+			<http:request method="GET" doc:name="Verify OTP Message" doc:id="3d71f486-9ee1-47b1-b2b6-52f9b0ae8f89" config-ref="HTTP_Request_configuration1" path="/check/json?api_key=34c109d8&amp;api_secret=DVsK5neDxFp7BcES">
+				<http:query-params ><![CDATA[#[output application/java
+---
+{
+	code : message.attributes.queryParams.code,
+	request_id : message.attributes.queryParams.request_id
+}]]]></http:query-params>
+		
+</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7df90a68-d0a6-4823-bc2e-947c71ead3bc" >
+					<logger level="INFO" doc:name="Logger" doc:id="a45f5349-0ddc-4a36-a934-6b6fcf32f075" message="#[message]"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="45dc9d01-f01a-4a05-8491-5f75171204b8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+</flow>
+
+<flow name="tirapa-eidiko-testCSOR" doc:id="f225115d-cf9d-418c-b777-3b051ad3a0cf" >
+		<http:listener doc:name="Meraki CSOR" doc:id="163d6da5-8a5d-418b-a6ae-9c9e886a98f2" config-ref="HTTP_Listener_config" path="/testCSOR">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Access-Control-Allow-Origin" : "*"
+}]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Echo Input Data" doc:id="094bdc6f-4ba3-486f-9ed0-81e1a15d465b" message="#['TESTING']"/>
+		
+		
+		<ee:transform doc:name="Transform Message" doc:id="6deefce4-588c-465d-ac57-f0a4984d1057" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+	'Test':'test'
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	
 </flow>
 
@@ -131,7 +414,7 @@ payload[0]]" doc:name="Set Validator Response" doc:id="f3f2f01f-39c9-4d16-acee-c
 	
 	<set-variable value="#[payload]" doc:name="Set Variable" doc:id="9aa8c9f7-2a89-4d82-9f94-2dae0477b228" variableName="payloadOver"/>
 		<try doc:name="Try" doc:id="03b6e77d-9358-475d-8512-324b70f4c0f9" >
-			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="51db7103-d531-48db-8d2f-6ff0da8470ed" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:request method="POST" doc:name="Post WebEx Validata Message" doc:id="51db7103-d531-48db-8d2f-6ff0da8470ed" config-ref="HTTP_Reques_WebEx" path="/messages">
 			<http:body><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -142,7 +425,7 @@ output application/json
 					<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Authorization" : "Bearer ZWZhYTEzZTItNzgzZS00ZmQ4LWExYWEtMjgwN2M5NjgwN2Q5NDNjZTFkZTItMzQ5_PF84_consumer",
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 					<http:query-params><![CDATA[#[output application/java
@@ -179,7 +462,7 @@ vars.payloadOver]" doc:name="Set Payload" doc:id="61e7dd93-b754-48b6-8e20-e1a2eb
 		<set-variable value="#[payload[0].TOTAL_PERSONS]" doc:name="Set Variable" doc:id="b81922b7-bbf1-49f8-a5a5-55f880f259c3" variableName="tatalPersons"/>
 		<set-variable value="#[payload[0].TOTAL_DISTINCT_PERSONS]" doc:name="Set Variable" doc:id="802a14e0-3af4-4a50-97cb-c07f180fd0b7" variableName="distinctPersons"/>
 		<try doc:name="Try" doc:id="78a14e95-0fff-4b92-bbd0-feda7163736d" >
-			<http:request method="POST" doc:name="Post WebEx Message" doc:id="8bdfb40c-ae7d-4bd9-b18f-d6e0fd6f63a0" config-ref="HTTP_Request_configuration1" path="/messages">
+			<http:request method="POST" doc:name="Post WebEx Message" doc:id="8bdfb40c-ae7d-4bd9-b18f-d6e0fd6f63a0" config-ref="HTTP_Reques_WebEx" path="/messages">
 			<http:body><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -190,7 +473,7 @@ output application/json
 					<http:headers><![CDATA[#[output application/java
 ---
 {
-	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Authorization" : "Bearer OTIzNGYzOGItY2NkZS00YmZlLThkZmUtMjI0NDMwMGFkMmFjMDczYzIyNzItM2E3_PF84_consumer",
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 					<http:query-params><![CDATA[#[output application/java
@@ -262,18 +545,18 @@ output application/json
 			</db:parameter-types>
 			<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
 		</db:insert>
-		<http:request method="POST" doc:name="Request" doc:id="f06fe7bc-2e33-4735-9f6c-85310423a573" config-ref="HTTP_Request_configuration1" path="/messages">
+		<http:request method="POST" doc:name="Request" doc:id="f06fe7bc-2e33-4735-9f6c-85310423a573" config-ref="HTTP_Reques_WebEx" path="/messages">
 			<http:body ><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
 	"roomId": "Y2lzY29zcGFyazovL3VzL1JPT00vYmMyYmE4NGYtZDJkNS0zMWIzLTk3ODgtZTQ1MmZjNzQ2ZTQw",
-	"markdown": "**A new [Person or Client](https://4263c2b2a7c7.ngrok.io/base/getClient/cc:cc:cc:ac:78:b0) Entered DSO Network with a MAC ID :: **"++ vars.clientMac++'Click [Network Details](https://4263c2b2a7c7.ngrok.io/base/network) for complete network details'
+	"markdown": "**A new [Person or Client](https://4376abeec066.ngrok.io/base/getClient/cc:cc:cc:ac:78:b0) Entered DSO Network with a MAC ID :: **"++ vars.clientMac++'Click [Network Details](https://4376abeec066.ngrok.io/base/network) for complete network details'
 }]]]></http:body>
 					<http:headers ><![CDATA[#[output application/java
 ---
 {
-	"Authorization" : "Bearer YWMwZmNhODAtZGEzNC00NjRmLWI0NDYtZWY0MTg5ZGU5YWMzMWRmNzRmZGMtMTll_PF84_consumer",
+	"Authorization" : "Bearer OTIzNGYzOGItY2NkZS00YmZlLThkZmUtMjI0NDMwMGFkMmFjMDczYzIyNzItM2E3_PF84_consumer",
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 					<http:query-params ><![CDATA[#[output application/java
